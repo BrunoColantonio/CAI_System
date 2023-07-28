@@ -4,8 +4,9 @@ import customtkinter as ctk
 from tkinter import messagebox
 from tkinter.font import Font
 import sqlite3
-import pdfkit
-import jinja2
+from fpdf import FPDF
+#import pdfkit
+#import jinja2
 import os
 
 def is_valid_date(date):
@@ -18,7 +19,7 @@ def is_valid_date(date):
 
 def validate_art(art):
     ## validate ART name
-    conn = sqlite3.connect('.\database\cai_database.db')
+    conn = sqlite3.connect('..\database\cai_database.db')
     art = art.upper()
     if(art == '-'):
         art = 'PARTICULAR'
@@ -32,7 +33,7 @@ def validate_art(art):
         return True, data[0]
     
 def dni_is_valid(dni):
-    conn = sqlite3.connect('.\database\cai_database.db')
+    conn = sqlite3.connect('..\database\cai_database.db')
     query = f"SELECT Dni FROM Paciente WHERE Dni = {dni} "
     cursor = conn.execute(query)
     data = cursor.fetchone()
@@ -44,7 +45,7 @@ def dni_is_valid(dni):
         return True
 
 def get_pacient(obj, query_arg):
-        conn = sqlite3.connect('.\database\cai_database.db')
+        conn = sqlite3.connect('..\database\cai_database.db')
         
         if(query_arg =='dni'):
             dni = int(obj.entry_dni_var.get())
@@ -92,7 +93,7 @@ def get_pacient(obj, query_arg):
         conn.close()
 
 def get_pacient_event(obj, event, query_arg):
-    conn = sqlite3.connect('.\database\cai_database.db')
+    conn = sqlite3.connect('..\database\cai_database.db')
         
     if(query_arg == 'dni'):
         dni = int(obj.entry_dni_var.get())
@@ -160,7 +161,7 @@ class App(ctk.CTk):
         # main setup
         super().__init__()
         self.title('Fichas pacientes')
-        self.iconbitmap('.\images\cai_logo.ico')
+        self.iconbitmap('..\images\cai_logo.ico')
         self.state('zoomed')
         ctk.set_appearance_mode("light")
         
@@ -342,23 +343,54 @@ class GenerarFichaFrame(ctk.CTkFrame):
     def generatePdf(self):
         answer = messagebox.askquestion(title = 'Confirmación', message = '¿Seguro que desea continuar?')
         if answer == "yes":
-            dni = int(self.dni_text_var.get())
+            output_pdf = 'planilla_asistencia.pdf'
+            dni = self.dni_text_var.get()
             name = self.name_text_var.get()
             surname = self.surname_text_var.get()
             art = self.art_text_var.get()
-            #--------------------creacion pdf------------------------- #
-            pdf_variables = {'dni': dni, 'surname': surname, 'name': name, 'art': art}
-            template_loader = jinja2.FileSystemLoader('./')
-            template_env = jinja2.Environment(loader = template_loader)
             
-            html_template = '.\docs\doc_test.html'
-            final_template = template_env.get_template(html_template)
-            output_text = final_template.render(pdf_variables)
+            #-------------------- pdf creation ------------------------- #
             
-            path = "C:/Program Files/wkhtmltopdf/wkhtmltopdf.exe" 
-            pdf_config = pdfkit.configuration(wkhtmltopdf = path)
-            output_pdf = 'planilla_firmas.pdf'
-            pdfkit.from_string(output_text, output_pdf, configuration=pdf_config)
+            # if art = galeno, create especific galeno's pdf
+            if(art == 'GALENO'):
+                siniester = self.siniester_text_var.get()
+                job = self.job_text_var.get()
+                accident_date = self.accident_date_text_var.get()
+                start_date = self.start_date_text_var.get()
+                
+                pdf = FPDF('P','mm','A4')
+                pdf.add_page()
+                pdf.set_font('helvetica','',10)
+                pdf.set_margins(left=13,top=23,right=10)
+            
+                pdf.cell(0,7.6,"N° Caso/siniestro: " + siniester, new_x="LMARGIN", new_y="NEXT")
+                pdf.cell(92,7.6,"Apellido y nombre: " + surname + ", " + name)
+                pdf.cell(92,7.6,"CUIL/DNI: " + dni, new_x="LMARGIN", new_y="NEXT")
+                pdf.cell(0,7.6,"Puesto de trabajo: " + job, new_x="LMARGIN", new_y="NEXT")
+                pdf.cell(53,7.6,"Fecha de accidente: 12/12/2001")
+                pdf.cell(90,7.6,"Lugar del accidente (laboral/In itinere,etc.) ....................")
+                pdf.cell(55,7.6,"Traslado: R/TP /Ambulancia", new_x="LMARGIN", new_y="NEXT")
+                pdf.cell(110,7.6,"Mecanismo del accidente: ................................................................")
+                pdf.cell(88,7.6,"Fecha de ingreso a centro medico: " + start_date, new_x="LMARGIN", new_y="NEXT")
+                pdf.cell(62,7.6,"Fecha Qx (cirugía: ........../....../...........")
+                pdf.cell(65,7.6,"Fecha de indicación: ........../....../...........")
+                pdf.cell(65,7.6,"Cantidad de sesiones: ..........................", new_x="LMARGIN", new_y="NEXT")
+                
+                pdf.output(output_pdf)
+            else:
+                pdf = FPDF('P','mm','Legal')
+                pdf.add_page()
+                pdf.set_font('helvetica','',12)
+                pdf.set_margins(left=15,top=32,right=15)
+            
+                pdf.cell(0,16,"Nombre y apellido: " + name +" " + surname, new_x="LMARGIN", new_y="NEXT")
+                pdf.cell(0,16,"D.N.I: " + dni, new_x="LMARGIN", new_y="NEXT")
+                pdf.cell(107,16,"A.R.T: " + art)
+                #pdf.cell(107,16,"A.R.T: OMINT")
+                pdf.cell(107,16,"TURNO: ",new_x="LMARGIN",new_y="NEXT")
+                
+                pdf.output(output_pdf)
+            
             
             # print generated pdf
             os.startfile(output_pdf, 'print')
@@ -488,7 +520,7 @@ class AltaPacienteFrame(ctk.CTkFrame):
         self.entry_start_date_var.set('')
     
     def create_pacient(self):
-        conn = sqlite3.connect('.\database\cai_database.db')
+        conn = sqlite3.connect('..\database\cai_database.db')
         
         #dni = int(self.entry_dni_var.get())
         dni = self.entry_dni_var.get()
@@ -553,7 +585,7 @@ class AltaPacienteFrame(ctk.CTkFrame):
         self.clear_fields()
     
     def create_pacient_event(self, event):
-        conn = sqlite3.connect('.\database\cai_database.db')
+        conn = sqlite3.connect('..\database\cai_database.db')
         
         #dni = int(self.entry_dni_var.get())
         dni = self.entry_dni_var.get()
@@ -646,7 +678,7 @@ class AltaARTFrame(ctk.CTkFrame):
         self.entry_name_var.set('')
     
     def create_art(self):
-        conn = sqlite3.connect('.\database\cai_database.db')
+        conn = sqlite3.connect('..\database\cai_database.db')
         name_art = self.entry_name_var.get()
         
         ## validate entry
@@ -685,7 +717,7 @@ class AltaARTFrame(ctk.CTkFrame):
             self.clear_fields()
                         
     def create_art_event(self,event):
-        conn = sqlite3.connect('.\database\cai_database.db')
+        conn = sqlite3.connect('..\database\cai_database.db')
         name_art = self.entry_name_var.get()
         
         ## validate entry
@@ -878,7 +910,7 @@ class BajaPacienteFrame(ctk.CTkFrame):
         answer = messagebox.askquestion(title = 'Confirmación', message = f'¿Seguro que desea dar de baja al paciente {surname}, {name}?')
         
         if answer == "yes":
-            conn = sqlite3.connect('.\database\cai_database.db')    
+            conn = sqlite3.connect('..\database\cai_database.db')    
             query = f"SELECT * FROM Paciente WHERE dni = {dni}"
             cursor = conn.execute(query)
             data = cursor.fetchone()
@@ -1047,7 +1079,7 @@ class ModificarPacienteFrame(ctk.CTkFrame):
         self.update_button.grid(row = 11, column = 0, columnspan = 4, pady = 18)
         
     def update_pacient(self):
-        conn = sqlite3.connect('.\database\cai_database.db')
+        conn = sqlite3.connect('..\database\cai_database.db')
         
         dni = int(self.dni_text_var.get())
         
@@ -1139,7 +1171,7 @@ class ModificarPacienteFrame(ctk.CTkFrame):
         clear_fields(self)
         
     def update_pacient_event(self,event):
-        conn = sqlite3.connect('.\database\cai_database.db')
+        conn = sqlite3.connect('..\database\cai_database.db')
         
         dni = int(self.dni_text_var.get())
         
