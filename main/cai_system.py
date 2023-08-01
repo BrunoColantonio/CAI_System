@@ -6,16 +6,37 @@ from tkinter.font import Font
 import sqlite3
 from fpdf import FPDF
 from datetime import datetime
-#import pdfkit
-#import jinja2
 import os
 
-def is_valid_date(date):
-    print(len(date))
-    if(len(date) == 10):
-        return True
-    else:
+def capitalize_string(string):
+    string_aux = string
+    string_aux = string_aux.lower()
+    string_aux = string_aux.split(" ")
+    string = ""
+    for i in string_aux:
+        string += i.capitalize() + " "
+    string = string[:-1]
+    
+    return string
+
+def is_valid_date(number):
+    number = str(number)
+    size = len(number)
+    if(size < 8):
         return False
+    else:
+        return True
+
+def format_date(date):
+    day = int(date[:2])
+    month = int(date[2:4])
+    year = int(date[4:])
+
+    formatted_date = datetime(day = day,
+                            month = month,
+                            year = year)
+
+    return (formatted_date.strftime('%d/%m/%Y')) 
 
 def validate_art(art):
     ## validate ART name
@@ -57,26 +78,9 @@ def get_pacient(obj, query_arg):
                     WHERE P.Dni = {dni} '''
                     
         else:
-            # name = obj.entry_name_var.get()
-            # name = name.lower().capitalize()
-            # surname = obj.entry_surname_var.get()
-            # surname = surname.lower().capitalize()
+            name = capitalize_string(obj.entry_name_var.get())
             
-            name_aux = obj.entry_name_var.get()
-            name_aux = name_aux.lower()
-            name_aux = name_aux.split(" ")
-            name = ""
-            for i in name_aux:
-                name += i.capitalize() + " "
-            name = name[:-1]
-            
-            surname_aux = obj.entry_surname_var.get()
-            surname_aux = surname_aux.lower()
-            surname_aux = surname_aux.split(" ")
-            surname = ""
-            for i in surname_aux:
-                surname += i.capitalize() + " "
-            surname = surname[:-1]
+            surname = capitalize_string(obj.entry_surname_var.get())
             
             query = f'''SELECT P.Dni, P.Nombre, P.Apellido, A.Nombre, P.Siniestro, 
                     P.Puesto_Trabajo, P.Fecha_Accidente, P.Telefono, P.Dr_derivante,
@@ -123,26 +127,9 @@ def get_pacient_event(obj, event, query_arg):
                 WHERE P.Dni = {dni} '''
                     
     else:
-        # name = obj.entry_name_var.get()
-        # name = name.lower().capitalize()
-        # surname = obj.entry_surname_var.get()
-        # surname = surname.lower().capitalize()
+        name = capitalize_string(obj.entry_name_var.get())
             
-        name_aux = obj.entry_name_var.get()
-        name_aux = name_aux.lower()
-        name_aux = name_aux.split(" ")
-        name = ""
-        for i in name_aux:
-            name += i.capitalize() + " "
-        name = name[:-1]
-            
-        surname_aux = obj.entry_surname_var.get()
-        surname_aux = surname_aux.lower()
-        surname_aux = surname_aux.split(" ")
-        surname = ""
-        for i in surname_aux:
-            surname += i.capitalize() + " "
-        surname = surname[:-1]
+        surname = capitalize_string(obj.entry_surname_var.get())
             
         query = f'''SELECT P.Dni, P.Nombre, P.Apellido, A.Nombre, P.Siniestro, 
                 P.Puesto_Trabajo, P.Fecha_Accidente, P.Telefono, P.Dr_derivante,
@@ -176,6 +163,40 @@ def get_pacient_event(obj, event, query_arg):
         
     conn.close()
 
+def get_fields(obj):
+    
+    accident_date = obj.accident_date_text_var.get()
+    if(is_valid_date(accident_date)):
+        accident_date = format_date(accident_date)
+        
+        dni = obj.dni_text_var.get()
+            
+        name = capitalize_string(obj.name_text_var.get())
+                
+        surname = capitalize_string(obj.surname_text_var.get())
+            
+        age = obj.age_text_var.get()
+            
+        phone = obj.phone_text_var.get()
+            
+        address = capitalize_string(obj.address_text_var.get())
+            
+        company = capitalize_string(obj.company_text_var.get())
+            
+        job = capitalize_string(obj.job_text_var.get())
+            
+        art = obj.art_text_var.get()
+            
+        siniester = obj.siniester_text_var.get()
+            
+        dr = capitalize_string(obj.dr_text_var.get())
+        
+        return dni,name,surname,age,phone,address,company,job,art,siniester,accident_date,dr
+    
+    else:
+        messagebox.showerror(title = 'Error: Fecha no valida', message = 'Ingresar fecha en formato DDMMAAAA')
+        return [""]
+     
 def clear_fields(obj):
         obj.entry_dni_var.set('')
         obj.entry_name_var.set('')
@@ -232,7 +253,6 @@ class Main(ctk.CTkTabview):
         AltaARTFrame(self.tab('ALTA ART'))
         HistoriaClinica(self.tab('HISTORIA CLINICA'))
         
-
 class GenerarFichaFrame(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
@@ -406,7 +426,7 @@ class GenerarFichaFrame(ctk.CTkFrame):
                 pdf = FPDF('P','mm','A4')
                 pdf.add_page()
                 pdf.set_font('helvetica','',10)
-                pdf.set_margins(left=3,top=22,right=10)
+                pdf.set_margins(left=8,top=18,right=0)
             
                 pdf.cell(0,7.6,"N° Caso/siniestro: " + siniester, new_x="LMARGIN", new_y="NEXT")
                 pdf.cell(92,7.6,"Apellido y nombre: " + surname + ", " + name)
@@ -434,7 +454,7 @@ class GenerarFichaFrame(ctk.CTkFrame):
                 pdf.cell(0,16,surname +" " + name, new_x="LMARGIN", new_y="NEXT")
                 
                 pdf.set_font('helvetica','',18)
-                pdf.cell(150,16,"D.N.I: " + dni)
+                pdf.cell(130,16,"D.N.I: " + dni)
                 pdf.cell(20,16,"A.R.T: ")
                 pdf.set_font('helvetica','B',25)
                 pdf.cell(0,16,art, new_x="LMARGIN", new_y="NEXT")
@@ -462,57 +482,57 @@ class AltaPacienteFrame(ctk.CTkFrame):
         self.header_label = ctk.CTkLabel(self, text = 'Dar de alta paciente:', font = ("Calibri",30), compound = 'center')
         
         self.dni_label = ctk.CTkLabel(self, text = 'D.N.I:', font = ("Calibri",18), compound = 'center')
-        self.entry_dni_var = ctk.StringVar()
-        self.entry_dni = ctk.CTkEntry(self, textvariable = self.entry_dni_var,border_color='black')
+        self.dni_text_var = ctk.StringVar()
+        self.entry_data_dni = ctk.CTkEntry(self, textvariable = self.dni_text_var,border_color='black')
         
         self.name_label = ctk.CTkLabel(self, text = 'NOMBRE:', font = ("Calibri",18), compound = 'center')
-        self.entry_name_var = ctk.StringVar()
-        self.entry_name = ctk.CTkEntry(self, textvariable = self.entry_name_var,border_color='black')
+        self.name_text_var = ctk.StringVar()
+        self.entry_data_name = ctk.CTkEntry(self, textvariable = self.name_text_var,border_color='black')
         
         self.surname_label = ctk.CTkLabel(self, text = 'APELLIDO:', font = ("Calibri",18), compound = 'center')
-        self.entry_surname_var = ctk.StringVar()
-        self.entry_surname = ctk.CTkEntry(self, textvariable = self.entry_surname_var,border_color='black')
+        self.surname_text_var = ctk.StringVar()
+        self.entry_data_surname = ctk.CTkEntry(self, textvariable = self.surname_text_var,border_color='black')
         
         self.age_label = ctk.CTkLabel(self, text = 'EDAD:', font = ("Calibri",18), compound = 'center')
-        self.entry_age_var = ctk.StringVar()
-        self.entry_age = ctk.CTkEntry(self, textvariable = self.entry_age_var,border_color='black')
+        self.age_text_var = ctk.StringVar()
+        self.entry_data_age = ctk.CTkEntry(self, textvariable = self.age_text_var,border_color='black')
         
         self.phone_label = ctk.CTkLabel(self, text = 'TELEFONO:', font = ("Calibri",18), compound = 'center')
-        self.entry_phone_var = ctk.StringVar()
-        self.entry_phone = ctk.CTkEntry(self, textvariable = self.entry_phone_var,border_color='black')
+        self.phone_text_var = ctk.StringVar()
+        self.entry_data_phone = ctk.CTkEntry(self, textvariable = self.phone_text_var,border_color='black')
         
         self.address_label = ctk.CTkLabel(self, text = 'DOMICILIO:', font = ("Calibri",18), compound = 'center')
-        self.entry_address_var = ctk.StringVar()
-        self.entry_address = ctk.CTkEntry(self, textvariable = self.entry_address_var,border_color='black')
+        self.address_text_var = ctk.StringVar()
+        self.entry_data_address = ctk.CTkEntry(self, textvariable = self.address_text_var,border_color='black')
         
         self.company_label = ctk.CTkLabel(self, text = 'EMPRESA:', font = ("Calibri",18), compound = 'center')
-        self.entry_company_var = ctk.StringVar()
-        self.entry_company = ctk.CTkEntry(self, textvariable = self.entry_company_var,border_color='black')
+        self.company_text_var = ctk.StringVar()
+        self.entry_data_company = ctk.CTkEntry(self, textvariable = self.company_text_var,border_color='black')
         
         self.job_label = ctk.CTkLabel(self, text = 'PUESTO DE TRABAJO:', font = ("Calibri",18), compound = 'center')
-        self.entry_job_var = ctk.StringVar()
-        self.entry_job = ctk.CTkEntry(self, textvariable = self.entry_job_var,border_color='black')
+        self.job_text_var = ctk.StringVar()
+        self.entry_data_job = ctk.CTkEntry(self, textvariable = self.job_text_var,border_color='black')
         
         self.art_label = ctk.CTkLabel(self, text = 'A.R.T:', font = ("Calibri",18), compound = 'center')
-        self.entry_art_var = ctk.StringVar()
-        self.entry_art = ctk.CTkEntry(self, textvariable = self.entry_art_var,border_color='black')
+        self.art_text_var = ctk.StringVar()
+        self.entry_data_art = ctk.CTkEntry(self, textvariable = self.art_text_var,border_color='black')
         
         self.siniester_label = ctk.CTkLabel(self, text = 'N° SINIESTRO:', font = ("Calibri",18), compound = 'center')
-        self.entry_siniester_var = ctk.StringVar()
-        self.entry_siniester = ctk.CTkEntry(self, textvariable = self.entry_siniester_var,border_color='black')
+        self.siniester_text_var = ctk.StringVar()
+        self.entry_data_siniester = ctk.CTkEntry(self, textvariable = self.siniester_text_var,border_color='black')
         
         self.accident_date_label = ctk.CTkLabel(self, text = 'FECHA ACCIDENTE:', font = ("Calibri",18), compound = 'center')
-        self.entry_accident_date_var = ctk.StringVar()
-        self.entry_accident_date = ctk.CTkEntry(self, textvariable = self.entry_accident_date_var,border_color='black')
+        self.accident_date_text_var = ctk.StringVar()
+        self.entry_data_accident_date = ctk.CTkEntry(self, textvariable = self.accident_date_text_var,border_color='black')
         
         self.dr_label = ctk.CTkLabel(self, text = 'DR DERIVANTE:', font = ("Calibri",18), compound = 'center')
-        self.entry_dr_var = ctk.StringVar()
-        self.entry_dr = ctk.CTkEntry(self, textvariable = self.entry_dr_var,border_color='black')
-        self.entry_dr.bind('<Return>', lambda event: AltaPacienteFrame.create_pacient_event(self,event))
+        self.dr_text_var = ctk.StringVar()
+        self.entry_data_dr = ctk.CTkEntry(self, textvariable = self.dr_text_var,border_color='black')
+        self.entry_data_dr.bind('<Return>', lambda event: AltaPacienteFrame.create_pacient_event(self,event))
         
         self.start_date_label = ctk.CTkLabel(self, text = 'FECHA DE INICIO:', font = ("Calibri",18), compound = 'center')
-        self.entry_start_date_var = ctk.StringVar()
-        self.entry_start_date = ctk.CTkEntry(self, textvariable = self.entry_start_date_var,border_color='black')
+        self.start_date_text_var = ctk.StringVar()
+        self.entry_data_start_date = ctk.CTkEntry(self, textvariable = self.start_date_text_var,border_color='black')
         
         self.submit_button = ctk.CTkButton(self, text = 'Enviar', command = lambda : AltaPacienteFrame.create_pacient(self),
                                             font = ("Calibri",15), fg_color="#4287f5",hover_color = "#196ef7",
@@ -525,114 +545,60 @@ class AltaPacienteFrame(ctk.CTkFrame):
         self.header_label.grid(row = 0, column = 0, columnspan = 4)
         
         self.dni_label.grid(row = 1, column = 0)
-        self.entry_dni.grid(row = 1, column = 1)
+        self.entry_data_dni.grid(row = 1, column = 1)
         
         self.name_label.grid(row = 1, column = 2)
-        self.entry_name.grid(row = 1, column = 3)
+        self.entry_data_name.grid(row = 1, column = 3)
         
         self.surname_label.grid(row = 2, column = 0)
-        self.entry_surname.grid(row = 2, column = 1)
+        self.entry_data_surname.grid(row = 2, column = 1)
         
         self.age_label.grid(row = 2, column = 2)
-        self.entry_age.grid(row = 2, column = 3)
+        self.entry_data_age.grid(row = 2, column = 3)
         
         self.phone_label.grid(row = 3, column = 0)
-        self.entry_phone.grid(row = 3, column = 1)
+        self.entry_data_phone.grid(row = 3, column = 1)
         
         self.address_label.grid(row = 3, column = 2)
-        self.entry_address.grid(row = 3, column = 3)
+        self.entry_data_address.grid(row = 3, column = 3)
         
         self.company_label.grid(row = 4, column = 0)
-        self.entry_company.grid(row = 4, column = 1)
+        self.entry_data_company.grid(row = 4, column = 1)
         
         self.job_label.grid(row = 4, column = 2)
-        self.entry_job.grid(row = 4, column = 3)
+        self.entry_data_job.grid(row = 4, column = 3)
         
         self.art_label.grid(row = 5, column = 0)
-        self.entry_art.grid(row = 5, column = 1)
+        self.entry_data_art.grid(row = 5, column = 1)
         
         self.siniester_label.grid(row = 5, column = 2)
-        self.entry_siniester.grid(row = 5, column = 3)
+        self.entry_data_siniester.grid(row = 5, column = 3)
         
         self.accident_date_label.grid(row = 6, column = 0)
-        self.entry_accident_date.grid(row = 6, column = 1)
+        self.entry_data_accident_date.grid(row = 6, column = 1)
         
         self.dr_label.grid(row = 6, column = 2)
-        self.entry_dr.grid(row = 6, column = 3)
+        self.entry_data_dr.grid(row = 6, column = 3)
         
         self.submit_button.grid(row = 7, column = 0, columnspan = 4)
         
     def clear_fields(self):
-        self.entry_dni_var.set('')
-        self.entry_name_var.set('')
-        self.entry_surname_var.set('')
-        self.entry_art_var.set('')
-        self.entry_age_var.set('')
-        self.entry_phone_var.set('')
-        self.entry_address_var.set('')
-        self.entry_company_var.set('')
-        self.entry_job_var.set('')
-        self.entry_siniester_var.set('')
-        self.entry_accident_date_var.set('')
-        self.entry_dr_var.set('')
+        self.dni_text_var.set('')
+        self.name_text_var.set('')
+        self.surname_text_var.set('')
+        self.art_text_var.set('')
+        self.age_text_var.set('')
+        self.phone_text_var.set('')
+        self.address_text_var.set('')
+        self.company_text_var.set('')
+        self.job_text_var.set('')
+        self.siniester_text_var.set('')
+        self.accident_date_text_var.set('')
+        self.dr_text_var.set('')
     
     def create_pacient(self):
         conn = sqlite3.connect('..\database\cai_database.db')
-        
-        #dni = int(self.entry_dni_var.get())
-        dni = self.entry_dni_var.get()
-        
-        name_aux = self.entry_name_var.get()
-        name_aux = name_aux.lower()
-        name_aux = name_aux.split(" ")
-        name = ""
-        for i in name_aux:
-            name += i.capitalize() + " "
-        name = name[:-1]
-        
-        surname_aux = self.entry_surname_var.get()
-        surname_aux = surname_aux.lower()
-        surname_aux = surname_aux.split(" ")
-        surname = ""
-        for i in surname_aux:
-            surname += i.capitalize() + " "
-        surname = surname[:-1]
-        
-        age = self.entry_age_var.get()
-        
-        phone = self.entry_phone_var.get()
-        
-        address = self.entry_address_var.get()
-        address = address.lower().capitalize()
-        
-        company = self.entry_company_var.get()
-        company = company.lower().capitalize()
-        
-        job = self.entry_job_var.get()
-        job = job.lower().capitalize()
-        
-        art = self.entry_art_var.get()
-        
-        siniester = self.entry_siniester_var.get()
-        
-        accident_date = self.entry_accident_date_var.get()
-        day = int(accident_date[:2])
-        month = int(accident_date[2:4])
-        year = int(accident_date[4:])
-
-        accident_date = datetime(day = day,
-                                month = month,
-                                year = year)
-
-        accident_date = accident_date.strftime('%d/%m/%Y')
-
-        dr_aux = self.entry_dr_var.get()
-        dr_aux = dr_aux.lower()
-        dr_aux = dr_aux.split(" ")
-        dr = ""
-        for i in dr_aux:
-            dr += i.capitalize() + " "
-        dr = dr[:-1]
+        dni,name,surname,age,phone,address,company,job,art,siniester,accident_date,dr = get_fields(self)
         
         current_date = datetime.now()
         current_date = current_date.strftime('%d/%m/%Y')
@@ -642,92 +608,34 @@ class AltaPacienteFrame(ctk.CTkFrame):
             messagebox.showerror(title = 'Error: Datos no validos', message = 'El DNI, NOMBRE, APELLIDO y ART no pueden estar en blanco')
         else:
             dni = int(dni)
-            #validate dates
-            if(not is_valid_date(accident_date)):
-                messagebox.showerror(title = 'Error: Fecha no valida', message = 'Ingresar fecha en formato DDMMAAA')
-            else:
-                ## validate ART name
-                is_valid, art_id = validate_art(art)
+
+            ## validate ART name
+            is_valid, art_id = validate_art(art)
             
-                if (not is_valid):
-                    messagebox.showerror(title = 'Error: ART invalida', message = f'La ART: {art} no existe')
+            if (not is_valid):
+                messagebox.showerror(title = 'Error: ART invalida', message = f'La ART: {art} no existe')
+            else:
+                #validate dni
+                if(not dni_is_valid(dni)):
+                    messagebox.showerror(title = 'Error: Dni no valido', message = f'Ya existe el paciente con dni: {dni}')
                 else:
-                    #validate dni
-                    if(not dni_is_valid(dni)):
-                        messagebox.showerror(title = 'Error: Dni no valido', message = f'Ya existe el paciente con dni: {dni}')
+                    query = f'''INSERT INTO Paciente 
+                                (Dni,Nombre,Apellido,Edad,Art,Siniestro,Puesto_Trabajo,Fecha_Accidente,Telefono,Dr_derivante,Fecha_Inicio,Empresa,Domicilio) 
+                                VALUES ({dni},'{name}','{surname}','{age}',{art_id},'{siniester}','{job}','{accident_date}',{phone},'{dr}','{start_date}','{company}','{address}')'''
+                    try:
+                        cursor = conn.execute(query)
+                        conn.commit()
+                    except sqlite3.Error as err:
+                        messagebox.showerror(title = 'Error', message = 'Algo ha salido mal :(')
                     else:
-                        query = f'''INSERT INTO Paciente 
-                                    (Dni,Nombre,Apellido,Edad,Art,Siniestro,Puesto_Trabajo,Fecha_Accidente,Telefono,Dr_derivante,Fecha_Inicio,Empresa,Domicilio) 
-                                    VALUES ({dni},'{name}','{surname}','{age}',{art_id},'{siniester}','{job}','{accident_date}',{phone},'{dr}','{start_date}','{company}','{address}')'''
-                        try:
-                            cursor = conn.execute(query)
-                            conn.commit()
-                        except sqlite3.Error as err:
-                            messagebox.showerror(title = 'Error', message = 'Algo ha salido mal :(')
-                        else:
-                            messagebox.showinfo(title = 'Operacion satisfactoria!', message = f'Se ha dado de alta al paciente {surname}, {name}')
-                            self.clear_fields()
-                        finally:
-                            conn.close()
+                        messagebox.showinfo(title = 'Operacion satisfactoria!', message = f'Se ha dado de alta al paciente {surname}, {name}')
+                        self.clear_fields()
+                    finally:
+                        conn.close()
                     
-    
     def create_pacient_event(self, event):
         conn = sqlite3.connect('..\database\cai_database.db')
-        
-        #dni = int(self.entry_dni_var.get())
-        dni = self.entry_dni_var.get()
-        
-        name_aux = self.entry_name_var.get()
-        name_aux = name_aux.lower()
-        name_aux = name_aux.split(" ")
-        name = ""
-        for i in name_aux:
-            name += i.capitalize() + " "
-        name = name[:-1]
-        
-        surname_aux = self.entry_surname_var.get()
-        surname_aux = surname_aux.lower()
-        surname_aux = surname_aux.split(" ")
-        surname = ""
-        for i in surname_aux:
-            surname += i.capitalize() + " "
-        surname = surname[:-1]
-        
-        age = self.entry_age_var.get()
-        
-        phone = self.entry_phone_var.get()
-        
-        address = self.entry_address_var.get()
-        address = address.lower().capitalize()
-        
-        company = self.entry_company_var.get()
-        company = company.lower().capitalize()
-        
-        job = self.entry_job_var.get()
-        job = job.lower().capitalize()
-        
-        art = self.entry_art_var.get()
-        
-        siniester = self.entry_siniester_var.get()
-        
-        accident_date = self.entry_accident_date_var.get()
-        day = int(accident_date[:2])
-        month = int(accident_date[2:4])
-        year = int(accident_date[4:])
-
-        accident_date = datetime(day = day,
-                                month = month,
-                                year = year)
-
-        accident_date = accident_date.strftime('%d/%m/%Y')
-
-        dr_aux = self.entry_dr_var.get()
-        dr_aux = dr_aux.lower()
-        dr_aux = dr_aux.split(" ")
-        dr = ""
-        for i in dr_aux:
-            dr += i.capitalize() + " "
-        dr = dr[:-1]
+        dni,name,surname,age,phone,address,company,job,art,siniester,accident_date,dr = get_fields(self)
         
         current_date = datetime.now()
         current_date = current_date.strftime('%d/%m/%Y')
@@ -737,33 +645,30 @@ class AltaPacienteFrame(ctk.CTkFrame):
             messagebox.showerror(title = 'Error: Datos no validos', message = 'El DNI, NOMBRE, APELLIDO y ART no pueden estar en blanco')
         else:
             dni = int(dni)
-            #validate dates
-            if(not is_valid_date(accident_date)):
-                messagebox.showerror(title = 'Error: Fecha no valida', message = 'Ingresar fecha en formato DDMMAAA')
-            else:
-                ## validate ART name
-                is_valid, art_id = validate_art(art)
+
+            ## validate ART name
+            is_valid, art_id = validate_art(art)
             
-                if (not is_valid):
-                    messagebox.showerror(title = 'Error: ART invalida', message = f'La ART: {art} no existe')
+            if (not is_valid):
+                messagebox.showerror(title = 'Error: ART invalida', message = f'La ART: {art} no existe')
+            else:
+                #validate dni
+                if(not dni_is_valid(dni)):
+                    messagebox.showerror(title = 'Error: Dni no valido', message = f'Ya existe el paciente con dni: {dni}')
                 else:
-                    #validate dni
-                    if(not dni_is_valid(dni)):
-                        messagebox.showerror(title = 'Error: Dni no valido', message = f'Ya existe el paciente con dni: {dni}')
+                    query = f'''INSERT INTO Paciente 
+                                (Dni,Nombre,Apellido,Edad,Art,Siniestro,Puesto_Trabajo,Fecha_Accidente,Telefono,Dr_derivante,Fecha_Inicio,Empresa,Domicilio) 
+                                VALUES ({dni},'{name}','{surname}','{age}',{art_id},'{siniester}','{job}','{accident_date}',{phone},'{dr}','{start_date}','{company}','{address}')'''
+                    try:
+                        cursor = conn.execute(query)
+                        conn.commit()
+                    except sqlite3.Error as err:
+                        messagebox.showerror(title = 'Error', message = 'Algo ha salido mal :(')
                     else:
-                        query = f'''INSERT INTO Paciente 
-                                    (Dni,Nombre,Apellido,Edad,Art,Siniestro,Puesto_Trabajo,Fecha_Accidente,Telefono,Dr_derivante,Fecha_Inicio,Empresa,Domicilio) 
-                                    VALUES ({dni},'{name}','{surname}','{age}',{art_id},'{siniester}','{job}','{accident_date}',{phone},'{dr}','{start_date}','{company}','{address}')'''
-                        try:
-                            cursor = conn.execute(query)
-                            conn.commit()
-                        except sqlite3.Error as err:
-                            messagebox.showerror(title = 'Error', message = 'Algo ha salido mal :(')
-                        else:
-                            messagebox.showinfo(title = 'Operacion satisfactoria!', message = f'Se ha dado de alta al paciente {surname}, {name}')
-                            self.clear_fields()
-                        finally:
-                            conn.close()
+                        messagebox.showinfo(title = 'Operacion satisfactoria!', message = f'Se ha dado de alta al paciente {surname}, {name}')
+                        self.clear_fields()
+                    finally:
+                        conn.close()
 
 class AltaARTFrame(ctk.CTkFrame):
     def __init__(self,parent):
@@ -958,7 +863,7 @@ class BajaPacienteFrame(ctk.CTkFrame):
         self.start_date_text_var = ctk.StringVar()
         self.entry_start_date = ctk.CTkLabel(self, textvariable = self.start_date_text_var)
         
-        self.delete_button = ctk.CTkButton(self, text = 'Actualizar datos', command = lambda : BajaPacienteFrame.delete_pacient(self),
+        self.delete_button = ctk.CTkButton(self, text = 'Borrar', command = lambda : BajaPacienteFrame.delete_pacient(self),
                                             font = ("Calibri",15), fg_color="#4287f5",hover_color = "#196ef7",
                                             border_width=2.8,border_color="black",text_color='black')
         
@@ -1050,7 +955,7 @@ class BajaPacienteFrame(ctk.CTkFrame):
                 finally:
                     conn.close()
                     
-        clear_fields()
+        clear_fields(self)
                
 class ModificarPacienteFrame(ctk.CTkFrame):
     def __init__(self,parent):
@@ -1104,47 +1009,51 @@ class ModificarPacienteFrame(ctk.CTkFrame):
         
         self.phone_label = ctk.CTkLabel(self, text = 'TELEFONO:', font = ("Calibri",18), compound = 'center')
         self.phone_text_var = ctk.StringVar()
-        self.entry_phone = ctk.CTkEntry(self, textvariable = self.phone_text_var,border_color='black')
+        self.entry_data_phone = ctk.CTkEntry(self, textvariable = self.phone_text_var,border_color='black')
         
-        self.address_label = ctk.CTkLabel(self, text = 'DIRECCION:', font = ("Calibri",18), compound = 'center')
+        self.address_label = ctk.CTkLabel(self, text = 'DOMICILIO:', font = ("Calibri",18), compound = 'center')
         self.address_text_var = ctk.StringVar()
-        self.entry_address = ctk.CTkEntry(self, textvariable = self.address_text_var,border_color='black')
+        self.entry_data_address = ctk.CTkEntry(self, textvariable = self.address_text_var,border_color='black')
         
         self.company_label = ctk.CTkLabel(self, text = 'EMPRESA:', font = ("Calibri",18), compound = 'center')
         self.company_text_var = ctk.StringVar()
-        self.entry_company = ctk.CTkEntry(self, textvariable = self.company_text_var,border_color='black')
+        self.entry_data_company = ctk.CTkEntry(self, textvariable = self.company_text_var,border_color='black')
         
         self.job_label = ctk.CTkLabel(self, text = 'PUESTO DE TRABAJO:', font = ("Calibri",18), compound = 'center')
         self.job_text_var = ctk.StringVar()
-        self.entry_job = ctk.CTkEntry(self, textvariable = self.job_text_var,border_color='black')
+        self.entry_data_job = ctk.CTkEntry(self, textvariable = self.job_text_var,border_color='black')
         
         self.art_label = ctk.CTkLabel(self, text = 'A.R.T:', font = ("Calibri",18), compound = 'center')
         self.art_text_var = ctk.StringVar()
-        self.entry_art = ctk.CTkEntry(self, textvariable = self.art_text_var,border_color='black')
+        self.entry_data_art = ctk.CTkEntry(self, textvariable = self.art_text_var,border_color='black')
         
         self.siniester_label = ctk.CTkLabel(self, text = 'N° SINIESTRO:', font = ("Calibri",18), compound = 'center')
         self.siniester_text_var = ctk.StringVar()
-        self.entry_siniester = ctk.CTkEntry(self, textvariable = self.siniester_text_var,border_color='black')
+        self.entry_data_siniester = ctk.CTkEntry(self, textvariable = self.siniester_text_var,border_color='black')
         
-        self.accident_date_label = ctk.CTkLabel(self, text = 'FECHA DE ACCIDENTE:', font = ("Calibri",18), compound = 'center')
+        self.accident_date_label = ctk.CTkLabel(self, text = 'FECHA ACCIDENTE:', font = ("Calibri",18), compound = 'center')
         self.accident_date_text_var = ctk.StringVar()
-        self.entry_accident_date = ctk.CTkEntry(self, textvariable = self.accident_date_text_var,border_color='black')
+        self.entry_data_accident_date = ctk.CTkEntry(self, textvariable = self.accident_date_text_var,border_color='black')
         
         self.dr_label = ctk.CTkLabel(self, text = 'DR DERIVANTE:', font = ("Calibri",18), compound = 'center')
         self.dr_text_var = ctk.StringVar()
-        self.entry_dr = ctk.CTkEntry(self, textvariable = self.dr_text_var,border_color='black')
+        self.entry_data_dr = ctk.CTkEntry(self, textvariable = self.dr_text_var,border_color='black')
+        self.entry_data_dr.bind('<Return>', lambda event: AltaPacienteFrame.create_pacient_event(self,event))
         
         self.start_date_label = ctk.CTkLabel(self, text = 'FECHA DE INICIO:', font = ("Calibri",18), compound = 'center')
         self.start_date_text_var = ctk.StringVar()
-        self.entry_start_date = ctk.CTkEntry(self, textvariable = self.start_date_text_var,border_color='black')
+        self.entry_data_start_date = ctk.CTkEntry(self, textvariable = self.start_date_text_var,border_color='black')
         
         self.update_button = ctk.CTkButton(self, text = 'Actualizar datos', command = lambda : ModificarPacienteFrame.update_pacient(self),
                                             font = ("Calibri",15), fg_color="#4287f5",hover_color = "#196ef7",
                                             border_width=2.8,border_color="black",text_color='black')
+        self.clear_button = ctk.CTkButton(self, text = 'Limpiar', command = lambda : clear_fields(self),
+                                            font = ("Calibri",15), fg_color="#c7c4bd",hover_color = "#a19e97",
+                                            border_width=2.8,border_color="black",text_color='black')
 
     def create_layout(self):
         self.columnconfigure((0,1,2,3), weight = 1)
-        self.rowconfigure((0,1,2,3,4,5,6,7,8,9,10,11,12), weight = 1)
+        self.rowconfigure((0,1,2,3,4,5,6,7,8,9,10,11,12,13), weight = 1)
         
         ## HEADER ##
         self.header_label.grid(row = 0, column = 0, columnspan = 4)
@@ -1178,100 +1087,56 @@ class ModificarPacienteFrame(ctk.CTkFrame):
         self.entry_data_age.grid(row = 6, column = 3)
         
         self.phone_label.grid(row = 7, column = 0)
-        self.entry_phone.grid(row = 7, column = 1)
+        self.entry_data_phone.grid(row = 7, column = 1)
         
         self.address_label.grid(row = 7, column = 2)
-        self.entry_address.grid(row = 7, column = 3)
+        self.entry_data_address.grid(row = 7, column = 3)
         
         self.company_label.grid(row = 8, column = 0)
-        self.entry_company.grid(row = 8, column = 1)
+        self.entry_data_company.grid(row = 8, column = 1)
         
         self.job_label.grid(row = 8, column = 2)
-        self.entry_job.grid(row = 8, column = 3)
+        self.entry_data_job.grid(row = 8, column = 3)
         
         self.art_label.grid(row = 9, column = 0)
-        self.entry_art.grid(row = 9, column = 1)
+        self.entry_data_art.grid(row = 9, column = 1)
         
         self.siniester_label.grid(row = 9, column = 2)
-        self.entry_siniester.grid(row = 9, column = 3)
+        self.entry_data_siniester.grid(row = 9, column = 3)
         
         self.accident_date_label.grid(row = 10, column = 0)
-        self.entry_accident_date.grid(row = 10, column = 1)
+        self.entry_data_accident_date.grid(row = 10, column = 1)
         
         self.dr_label.grid(row = 10, column = 2)
-        self.entry_dr.grid(row = 10, column = 3)
+        self.entry_data_dr.grid(row = 10, column = 3)
         
         self.start_date_label.grid(row = 11, column = 0)
-        self.entry_start_date.grid(row = 11, column = 1)
+        self.entry_data_start_date.grid(row = 11, column = 1)
         
         self.update_button.grid(row = 12, column = 0, columnspan = 4, pady = 18)
-        
+        self.clear_button.grid(row = 13, column = 3,pady = 18)
+              
     def update_pacient(self):
         conn = sqlite3.connect('..\database\cai_database.db')
         
-        dni = self.entry_dni_var.get()
+        parsed_date = self.accident_date_text_var.get()
+        parsed_date = parsed_date.replace('/',"")
+        self.accident_date_text_var.set(parsed_date)
         
-        name_aux = self.entry_name_var.get()
-        name_aux = name_aux.lower()
-        name_aux = name_aux.split(" ")
-        name = ""
-        for i in name_aux:
-            name += i.capitalize() + " "
-        name = name[:-1]
+        dni,name,surname,age,phone,address,company,job,art,siniester,accident_date,dr = get_fields(self)
         
-        surname_aux = self.entry_surname_var.get()
-        surname_aux = surname_aux.lower()
-        surname_aux = surname_aux.split(" ")
-        surname = ""
-        for i in surname_aux:
-            surname += i.capitalize() + " "
-        surname = surname[:-1]
+        parsed_date = self.start_date_text_var.get()
+        parsed_date = parsed_date.replace('/',"")
+        self.start_date_text_var.set(parsed_date)
         
-        age = self.entry_age_var.get()
-        
-        phone = self.entry_phone_var.get()
-        
-        address = self.entry_address_var.get()
-        address = address.lower().capitalize()
-        
-        company = self.entry_company_var.get()
-        company = company.lower().capitalize()
-        
-        job = self.entry_job_var.get()
-        job = job.lower().capitalize()
-        
-        art = self.entry_art_var.get()
-        
-        siniester = self.entry_siniester_var.get()
-        
-        accident_date = self.entry_accident_date_var.get()
-        day = int(accident_date[:2])
-        month = int(accident_date[2:4])
-        year = int(accident_date[4:])
-
-        accident_date = datetime(day = day,
-                                month = month,
-                                year = year)
-
-        accident_date = accident_date.strftime('%d/%m/%Y')
-
-        dr_aux = self.entry_dr_var.get()
-        dr_aux = dr_aux.lower()
-        dr_aux = dr_aux.split(" ")
-        dr = ""
-        for i in dr_aux:
-            dr += i.capitalize() + " "
-        dr = dr[:-1]
-        
-        current_date = datetime.now()
-        current_date = current_date.strftime('%d/%m/%Y')
-        start_date = current_date
+        start_date = self.start_date_text_var.get()
         
         #validate dates
-        if(not is_valid_date(accident_date)):
-            messagebox.showerror(title = 'Error: Fecha no valida', message = 'Ingresar fecha en formato DDMMAAA')
+        if(not is_valid_date(start_date)):
+            messagebox.showerror(title = 'Error: Fecha no valida', message = 'Ingresar fecha en formato DDMMAAAA')
         
         else:
+            start_date = format_date(start_date)
             ## validate ART name
             is_valid, art_id = validate_art(art)
         
@@ -1331,69 +1196,24 @@ class ModificarPacienteFrame(ctk.CTkFrame):
     def update_pacient_event(self,event):
         conn = sqlite3.connect('..\database\cai_database.db')
         
-        dni = self.entry_dni_var.get()
+        parsed_date = self.accident_date_text_var.get()
+        parsed_date = parsed_date.replace('/',"")
+        self.accident_date_text_var.set(parsed_date)
         
-        name_aux = self.entry_name_var.get()
-        name_aux = name_aux.lower()
-        name_aux = name_aux.split(" ")
-        name = ""
-        for i in name_aux:
-            name += i.capitalize() + " "
-        name = name[:-1]
+        dni,name,surname,age,phone,address,company,job,art,siniester,accident_date,dr = get_fields(self)
         
-        surname_aux = self.entry_surname_var.get()
-        surname_aux = surname_aux.lower()
-        surname_aux = surname_aux.split(" ")
-        surname = ""
-        for i in surname_aux:
-            surname += i.capitalize() + " "
-        surname = surname[:-1]
+        parsed_date = self.start_date_text_var.get()
+        parsed_date = parsed_date.replace('/',"")
+        self.start_date_text_var.set(parsed_date)
         
-        age = self.entry_age_var.get()
-        
-        phone = self.entry_phone_var.get()
-        
-        address = self.entry_address_var.get()
-        address = address.lower().capitalize()
-        
-        company = self.entry_company_var.get()
-        company = company.lower().capitalize()
-        
-        job = self.entry_job_var.get()
-        job = job.lower().capitalize()
-        
-        art = self.entry_art_var.get()
-        
-        siniester = self.entry_siniester_var.get()
-        
-        accident_date = self.entry_accident_date_var.get()
-        day = int(accident_date[:2])
-        month = int(accident_date[2:4])
-        year = int(accident_date[4:])
-
-        accident_date = datetime(day = day,
-                                month = month,
-                                year = year)
-
-        accident_date = accident_date.strftime('%d/%m/%Y')
-
-        dr_aux = self.entry_dr_var.get()
-        dr_aux = dr_aux.lower()
-        dr_aux = dr_aux.split(" ")
-        dr = ""
-        for i in dr_aux:
-            dr += i.capitalize() + " "
-        dr = dr[:-1]
-        
-        current_date = datetime.now()
-        current_date = current_date.strftime('%d/%m/%Y')
-        start_date = current_date
+        start_date = self.start_date_text_var.get()
         
         #validate dates
-        if(not is_valid_date(accident_date)):
-            messagebox.showerror(title = 'Error: Fecha no valida', message = 'Ingresar fecha en formato DDMMAAA')
+        if(not is_valid_date(start_date)):
+            messagebox.showerror(title = 'Error: Fecha no valida', message = 'Ingresar fecha en formato DDMMAAAA')
         
         else:
+            start_date = format_date(start_date)
             ## validate ART name
             is_valid, art_id = validate_art(art)
         
@@ -1606,11 +1426,12 @@ class HistoriaClinica(ctk.CTkFrame):
         answer = messagebox.askquestion(title = 'Confirmación', message = '¿Seguro que desea continuar?')
         if answer == "yes":
             output_pdf = '..\\files\historia_clinica.pdf'
+            
             dni = self.dni_text_var.get()
             name = self.name_text_var.get()
             surname = self.surname_text_var.get()
             art = self.art_text_var.get()
-            age = '30'
+            age = self.age_text_var.get()
             phone = self.phone_text_var.get()
             address = self.address_text_var.get()
             company = self.company_text_var.get()
@@ -1639,7 +1460,7 @@ class HistoriaClinica(ctk.CTkFrame):
             pdf.cell(85,10, "Dr. Derivante: " + dr)
             pdf.cell(75,10, "Fecha de accidente: " + accident_date)
             pdf.cell(65,10, "N° siniestro: " + siniester, new_x="LMARGIN", new_y="NEXT")
-            pdf.cell(150,10, "Diagnóstico Médico: .............................")
+            pdf.cell(150,10, "Diagnóstico Médico: ..........................................................")
             pdf.cell(70,10, "Fecha de inicio: " + start_date, new_x="LMARGIN", new_y="NEXT")
             pdf.cell(0,10,"Dominancia: ...............", new_x="LMARGIN", new_y="NEXT")
                 
