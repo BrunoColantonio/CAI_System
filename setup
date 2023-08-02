@@ -1,7 +1,4 @@
 instalar python
 instalar tkinter
 instalar sqlite
-///instalar jinja2 --> no
-///instalar pdfkit --> no
-///instalar 'wkhtmltopdf' en https://wkhtmltopdf.org/downloads.html --> no
 instalar fpdf2
