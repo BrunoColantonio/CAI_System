@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['cai_system.py'],
+    ['code\\cai_system.py'],
     pathex=[],
     binaries=[],
     datas=[],

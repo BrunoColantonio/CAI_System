@@ -513,7 +513,7 @@ def generate_sign_pdf(obj):
             
             
             # print generated pdf
-            #os.startfile(output_pdf, 'print')
+            os.startfile(output_pdf, 'print')
             obj_name = obj.__class__.__name__
             if(obj_name == 'GenerarFichaFrame'):
                 clear_fields(obj)
@@ -574,7 +574,7 @@ def generate_clinic_pdf(obj):
             
             
             # print generated pdf
-            #os.startfile(output_pdf, 'print')
+            os.startfile(output_pdf, 'print')
             
             if(obj_name == 'HistoriaClinica'):
                 clear_fields(obj)
