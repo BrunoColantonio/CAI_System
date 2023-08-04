@@ -24,6 +24,14 @@ creación de los PDFS y ahorrar tinta de la impresora, el sistema generará la p
 .Al ejecutar el instalador, no se necesitará de la carpeta 'executable_file_folder', pero si en cambio no se desea ejecutar
 el mismo, se deberá tener la carpeta 'executable_file_folder' en el ordenador donde se desee ejecutar el programa.
 
+.Si se desea ejecutar el instalador, en uno de sus pasos pedirá que se indique dónde guardar los archivos del sistema.
+Es MUY importante que se lo haga en la siguiente ruta: "c:\Users\%user%\AppData\Local\%appname%", ya que por defecto
+se instala en la carpeta de Program Files, la cual no permite escritura sobre la base de datos u otros archivos a menos que 
+se tengan permisos de administrador.
+NOTA: %users% y %appname% se reemplazan por el usuario del ordenador donde se esté instalando y por el nombre del sistema.
+
+Mas detalles sobre esto en: https://github.com/cztomczak/phpdesktop/wiki/Knowledge-Base#deployment-issues
+
 ----------------------------------------------------------------------------------------------------------
                                 #CAI_SYSTEM:
 It is a system created in Python 3.11 with a GUI designed on TKinter in which it is done a full CRUD on 
@@ -52,3 +60,11 @@ It only generates the missing part of the templates, which is the one that was h
 IMPORTANT!
 .If you execute the installer file, you won´t need the 'executable_file_folder' but if in the other hand
 you don´t want to install it, you will need to have the 'executable_file_folder' in your computer.
+
+.If you want to use the installer, one step of it will be to select where do you want to save de system´s files.
+It´s VERY important for you to do in this path: "c:\Users\%user%\AppData\Local\%appname%" because the installer saves
+them in Program Files folder by default, which doesn´t allow write mode on the files unless you have root permission.
+NOTE: %users% and %appname% have to be replaced by the computer user and by the system name.
+
+More details about this in: https://github.com/cztomczak/phpdesktop/wiki/Knowledge-Base#deployment-issues
+

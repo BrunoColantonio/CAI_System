@@ -584,7 +584,7 @@ class App(ctk.CTk):
         # main setup
         super().__init__()
         self.title('Fichas pacientes')
-        self.iconbitmap(resource_path('images\logo.ico'))
+        self.iconbitmap(resource_path('images\icon.ico'))
         self.state('zoomed')
         ctk.set_appearance_mode("light")
         
@@ -802,7 +802,6 @@ class AltaPacienteFrame(ctk.CTkFrame):
                 cursor = conn.execute(query)
                 conn.commit()
             except sqlite3.Error as er:
-                print(er)
                 messagebox.showerror(title = 'Error', message = 'Algo ha salido mal :(')
             else:
                 messagebox.showinfo(title = 'Operacion satisfactoria!', message = f'Se ha dado de alta al paciente {surname}, {name}')
@@ -855,7 +854,6 @@ class AltaPacienteFrame(ctk.CTkFrame):
                 cursor = conn.execute(query)
                 conn.commit()
             except sqlite3.Error as er:
-                print(er)
                 messagebox.showerror(title = 'Error', message = 'Algo ha salido mal :(')
             else:
                 messagebox.showinfo(title = 'Operacion satisfactoria!', message = f'Se ha dado de alta al paciente {surname}, {name}')
