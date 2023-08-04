@@ -1,0 +1,54 @@
+                            #CAI_SYSTEM:
+
+Es un sistema creado en Python 3.11 con una GUI diseñada con TKinter en el cual se realiza un CRUD completo sobre
+los pacientes de un centro de rehabilitación kinesiológica.
+El por qué de este sistema? Mi madre ha sufrido de tunel carpiano por unos años hasta que logró operarse, hace poco 
+tiempo, volvieron sus dolores y quejas por tener que llenar tantas fichas y planillas a mano, por lo que 
+decidí crear este sistema el cual le permite gestionar los pacientes, las art, generar e imprimir
+de manera automática, con datos obtenidos de la base de datos (implementada en SQLite), los distintos archivos
+ que antes solía completar a mano.
+
+DISTRIBUCIÓN:
+.Dentro de la carpeta 'code' se haya el código fuente junto con los archivos que interactúa el sistema.
+
+.Dentro de la carpeta 'executable_file_folder' se encuentra el ejecutable junto con los archivos que interactúa el sistema
+
+.Dentro de la carpeta 'installer_file' se encuentra un archivo que instalará el sistema en el ordenador, 
+creando el correspondiente acceso directo al ejecutable en el escritorio
+
+.Dentro de la carpeta 'blank_files' se hallan los archivos en blanco, que luego se imprimirán. Ya que para facilitar la 
+creación de los PDFS y ahorrar tinta de la impresora, el sistema generará la parte faltante de dichos archivos
+(la parte que era llenada a mano), e imprimirá sobre los distintos archivos en blanco.
+
+¡IMPORTANTE!
+.Al ejecutar el instalador, no se necesitará de la carpeta 'executable_file_folder', pero si en cambio no se desea ejecutar
+el mismo, se deberá tener la carpeta 'executable_file_folder' en el ordenador donde se desee ejecutar el programa.
+
+----------------------------------------------------------------------------------------------------------
+                                #CAI_SYSTEM:
+It is a system created in Python 3.11 with a GUI designed on TKinter in which it is done a full CRUD on 
+a kinesiology rehab center's pacients.
+Why I made this system? My mother suffered from carpal tunnel until she got surgeoned many years ago.
+Recently, her pain came back and so her complains about handmade filling a huge amount of forms daily.
+That is why I decided to develop this system where she can manage the center´s pacients, job risks insurance
+and automatically generate and print those handwritten forms.
+
+FOLDERS DISTRIBUTION:
+.Inside 'code' folder there is the source code and also the different files that the system uses
+
+.Inside 'executable_file_folder' there is the .exe file, also with the different files that the system uses
+
+.Inside 'installer_file' there is an installer file which will install the system in the computer, creating
+its corresponding desktop shortcut to the executable file
+
+.Dentro de la carpeta 'blank_files' se hallan los archivos en blanco, que luego se imprimirán. Ya que para facilitar la 
+creación de los PDFS y ahorrar tinta de la impresora, el sistema generará la parte faltante de dichos archivos
+(la parte que era llenada a mano), e imprimirá sobre los distintos archivos en blanco.
+
+.Inside 'blank_files' there are the blank files that the system will fill and print. The system doesn´t generate the
+entire file because it would spend a lot in printer´s inc (it´s cheaper to copy the templates in other place). 
+It only generates the missing part of the templates, which is the one that was handwritten.
+
+IMPORTANT!
+.If you execute the installer file, you won´t need the 'executable_file_folder' but if in the other hand
+you don´t want to install it, you will need to have the 'executable_file_folder' in your computer.
