@@ -805,6 +805,15 @@ class AltaPacienteFrame(ctk.CTkFrame):
                 messagebox.showerror(title = 'Error', message = 'Algo ha salido mal :(')
             else:
                 messagebox.showinfo(title = 'Operacion satisfactoria!', message = f'Se ha dado de alta al paciente {surname}, {name}')
+                self.name_text_var.set(name)
+                self.surname_text_var.set(surname)
+                self.address_text_var.set(address)
+                self.company_text_var.set(company)
+                self.job_text_var.set(job)
+                self.dr_text_var.set(dr)
+                self.siniester_text_var.set(siniester)
+                self.accident_date_text_var.set(accident_date)
+                
             finally:
                 conn.close()
     
@@ -857,6 +866,15 @@ class AltaPacienteFrame(ctk.CTkFrame):
                 messagebox.showerror(title = 'Error', message = 'Algo ha salido mal :(')
             else:
                 messagebox.showinfo(title = 'Operacion satisfactoria!', message = f'Se ha dado de alta al paciente {surname}, {name}')
+                self.name_text_var.set(name)
+                self.surname_text_var.set(surname)
+                self.address_text_var.set(address)
+                self.company_text_var.set(company)
+                self.job_text_var.set(job)
+                self.dr_text_var.set(dr)
+                self.siniester_text_var.set(siniester)
+                self.accident_date_text_var.set(accident_date)
+                
             finally:
                 conn.close()
     
