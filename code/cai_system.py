@@ -14,6 +14,9 @@ import os
 DEFAULT_ART_MSG = 'Seleccione A.R.T'
 ENTRY_WIDTH = 250
 
+CLINIC_PDF_FONT_SIZE = 14
+SIGN_PDF_FONT_SIZE = 18
+
 font_type = 'Calibri'
 header_font_size = 30
 HEADER_FONT = (font_type, header_font_size)
@@ -207,6 +210,8 @@ def is_valid_date(date):
     #date = str(date)
     #size = len(date)
     #if(size < 8):
+    if(date == ""):
+        true
     if(len(date) < 8):
         return False
     else:
@@ -375,7 +380,7 @@ def get_pacient_event(obj, event, query_arg):
             #updating art ComboBox in update window
             obj.entry_data_art.set(data[3]) 
 
-def get_fields(obj,called_from):  
+def get_fields(obj,called_from):
     dni = obj.dni_text_var.get()
     name = normalize_string(obj.name_text_var.get())
     surname = normalize_string(obj.surname_text_var.get())
@@ -469,9 +474,11 @@ def generate_sign_pdf(obj):
                 
                 pdf = FPDF('P','mm','A4')
                 pdf.add_page()
-                pdf.set_font('helvetica','',10)
-                pdf.set_margins(left=8,top=18,right=0)
+                pdf.set_font('helvetica','',9)
+                pdf.set_margins(left=5,top=18,right=0)
             
+                name = name.upper()
+                surname = surname.upper()
                 pdf.cell(0,7.6,"N° Caso/siniestro: " + siniester, new_x="LMARGIN", new_y="NEXT")
                 pdf.cell(92,7.6,"Apellido y nombre: " + surname + ", " + name)
                 pdf.cell(92,7.6,"CUIL/DNI: " + dni, new_x="LMARGIN", new_y="NEXT")
@@ -489,24 +496,24 @@ def generate_sign_pdf(obj):
             else:
                 pdf = FPDF('P','mm','Legal')
                 pdf.add_page()
-                pdf.set_font('helvetica','',18)
-                pdf.set_margins(left=3,top=45,right=15)
+                pdf.set_font('helvetica','',SIGN_PDF_FONT_SIZE)
+                pdf.set_margins(left=3,top=35,right=3)
             
                 pdf.cell(60,16,"Nombre y apellido: ")
-                pdf.set_font('helvetica','',25)
+                pdf.set_font('helvetica','',20)
                 name = name.upper()
                 surname = surname.upper()
                 pdf.cell(0,16,surname +", " + name, new_x="LMARGIN", new_y="NEXT")
                 
-                pdf.set_font('helvetica','',18)
+                pdf.set_font('helvetica','',14)
                 pdf.cell(80,16,"D.N.I: " + dni)
                 pdf.cell(20,16,"A.R.T: ")
-                pdf.set_font('helvetica','',25)
+                pdf.set_font('helvetica','',20)
                 pdf.cell(0,16,art, new_x="LMARGIN", new_y="NEXT")
                 
                 
                 
-                pdf.set_font('helvetica','',18)
+                pdf.set_font('helvetica','',14)
                 pdf.cell(0,16,"TURNO: ........................",new_x="LMARGIN",new_y="NEXT")
                 
                 pdf.output(output_pdf)
@@ -514,9 +521,9 @@ def generate_sign_pdf(obj):
             
             # print generated pdf
             os.startfile(output_pdf, 'print')
-            obj_name = obj.__class__.__name__
-            if(obj_name == 'GenerarFichaFrame'):
-                clear_fields(obj)
+            # obj_name = obj.__class__.__name__
+            # if(obj_name == 'GenerarFichaFrame'):
+            #     clear_fields(obj)
 
 def generate_clinic_pdf(obj):
         answer = messagebox.askquestion(title = 'Confirmación', message = '¿Seguro que desea continuar?')
@@ -535,23 +542,21 @@ def generate_clinic_pdf(obj):
             job = obj.job_text_var.get()
             dr = obj.dr_text_var.get()
             siniester = obj.siniester_text_var.get()
+            accident_date = obj.accident_date_text_var.get()
             
             if(obj_name == 'AltaPacienteFrame'):
-                accident_date = obj.accident_date_text_var.get()
-                accident_date = format_date(accident_date)
                 current_date = datetime.now()
                 current_date = current_date.strftime('%d/%m/%Y')
                 start_date = current_date
             else:
-                accident_date = obj.accident_date_text_var.get()
                 start_date = obj.start_date_text_var.get()
             
             #-------------------- pdf creation ------------------------- #
             
             pdf = FPDF('P','mm','Legal')
             pdf.add_page()
-            pdf.set_font('helvetica','',14)
-            pdf.set_margins(left=0,top=41,right=0)
+            pdf.set_font('helvetica','',CLINIC_PDF_FONT_SIZE)
+            pdf.set_margins(left=10,top=36,right=0)
             
             name = name.upper()
             surname = surname.upper()
@@ -564,11 +569,11 @@ def generate_clinic_pdf(obj):
             pdf.cell(85,10, "Empresa: " + company)
             pdf.cell(85,10, "Puesto de trabajo: " + job, new_x="LMARGIN", new_y="NEXT")
             pdf.cell(85,10, "Dr. Derivante: " + dr)
-            pdf.cell(75,10, "Fecha de accidente: " + accident_date)
-            pdf.cell(65,10, "N° siniestro: " + siniester, new_x="LMARGIN", new_y="NEXT")
-            pdf.cell(150,10, "Diagnóstico Médico: ..........................................................")
-            pdf.cell(70,10, "Fecha de inicio: " + start_date, new_x="LMARGIN", new_y="NEXT")
-            pdf.cell(0,10,"Dominancia: ...............", new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(85,10, "Fecha de accidente: " + accident_date, new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(130,10, "Diagnóstico Médico: ..........................................................")
+            pdf.cell(73,10, "Fecha de inicio: " + start_date, new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(85,10,"Dominancia: ...............")
+            pdf.cell(85,10, "N° siniestro: " + siniester, new_x="LMARGIN", new_y="NEXT")
                 
             pdf.output(output_pdf)
             
@@ -576,8 +581,8 @@ def generate_clinic_pdf(obj):
             # print generated pdf
             os.startfile(output_pdf, 'print')
             
-            if(obj_name == 'HistoriaClinica'):
-                clear_fields(obj)
+            # if(obj_name == 'HistoriaClinica'):
+            #     clear_fields(obj)
 
 class App(ctk.CTk):
     def __init__(self):
