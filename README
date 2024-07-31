@@ -9,7 +9,7 @@ de manera automática, con datos obtenidos de la base de datos (implementada en 
  que antes solía completar a mano.
 
 DISTRIBUCIÓN:
-.Dentro de la carpeta 'code' se haya el código fuente junto con los archivos que interactúa el sistema.
+.Dentro de la carpeta 'code' se halla el código fuente junto con los archivos que interactúa el sistema.
 
 .Dentro de la carpeta 'executable_file_folder' se encuentra el ejecutable junto con los archivos que interactúa el sistema
 
