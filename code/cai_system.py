@@ -483,7 +483,7 @@ def generate_sign_pdf(obj):
                 pdf.cell(92,7.6,"Apellido y nombre: " + surname + ", " + name)
                 pdf.cell(92,7.6,"CUIL/DNI: " + dni, new_x="LMARGIN", new_y="NEXT")
                 pdf.cell(0,7.6,"Puesto de trabajo: " + job, new_x="LMARGIN", new_y="NEXT")
-                pdf.cell(53,7.6,"Fecha de accidente: 12/12/2001")
+                pdf.cell(53,7.6,"Fecha de accidente: " + accident_date)
                 pdf.cell(90,7.6,"Lugar del accidente (laboral/In itinere,etc.) ....................")
                 pdf.cell(55,7.6,"Traslado: R/TP /Ambulancia", new_x="LMARGIN", new_y="NEXT")
                 pdf.cell(110,7.6,"Mecanismo del accidente: ................................................................")
